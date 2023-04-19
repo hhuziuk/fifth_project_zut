@@ -1,28 +1,26 @@
 #ifndef GAME_H
 #define GAME_H
-#include <iostream>
-#include <vector>
-#include <string>
+#include "Haslo.h"
 #include "Player.h"
+#include <iostream>
+#include <string>
+#include <vector>
+
 using namespace std;
 
 class Game {
 public:
-    Game();
-    void play();
-    char readLetter();
-    char readChoice();
-    int isVowel(char c);
-    void textPlayers();
-    void loadWords();
-    string getRandomWord();
+  Game();
+  void play();
+  char readLetter();
+  char readChoice();
+  int isVowel(char c);
+  void textPlayers();
 
 private:
-    vector<Player> players;
-    vector<string> words;
-    int currentPlayer;
-    int wheel[16];
-    string has;
+  vector<Player> players;
+  int currentPlayer;
+  Haslo haslo;
 };
 
 #endif

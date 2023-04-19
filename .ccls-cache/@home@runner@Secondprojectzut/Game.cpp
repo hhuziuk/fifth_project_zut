@@ -1,4 +1,7 @@
 #include "Game.h"
+#include "Haslo.h"
+#include "Kolor.h"
+#include "Wheel.h"
 #include <cassert>
 #include <cctype>
 #include <cmath>
@@ -10,19 +13,17 @@
 
 using namespace std;
 
-Game::Game()
-    : currentPlayer(0), wheel{-1,  0,   100,  200,  100,  200,  100,  200,
-                              500, 500, 1000, 1000, 1500, 2000, 3000, 5000} {
+Game::Game() : currentPlayer(0) {
   players.resize(3);
   players[0].setName("Bryanusz");
   players[1].setName("Jessica ");
   players[2].setName("Nepomucen");
-  loadWords();
+  haslo.loadWords();
 }
 
 void Game::play() {
   int i;
-  string has = getRandomWord();
+  string has = haslo.getRandomWord();
   string proba;
   char literka;
   int n = has.size();
@@ -33,6 +34,8 @@ void Game::play() {
   int kwota = 0;
   char wybor;
 
+  Wheel wheel;
+
   for (i = 0; i < n; i++) {
     if (has[i] == ' ') {
       maska[i] = 0;
@@ -42,8 +45,7 @@ void Game::play() {
   }
 
   do {
-    cout << "\033[47m"
-         << "\033[31m";
+    cout << Kolor::red("");
     for (i = 0; i < n; i++) {
       if (maska[i] == 1) {
         cout << ".";
@@ -51,7 +53,7 @@ void Game::play() {
         cout << has[i];
       }
     }
-    cout << "\033[0m" << endl;
+    cout << Kolor::red("") << endl;
 
     sa_spolgloski = 0;
     kwota = 0;
@@ -96,24 +98,18 @@ void Game::play() {
       }
     }
 
-    srand(time(NULL));
-    string rezultat = "";
-    i = rand() % 15;
-    if (wheel[i] == 0) {
-      rezultat = "Strata kolejki";
-    }
-    if (wheel[i] == -1) {
-      rezultat = "Bankrut";
-    }
-    if (rezultat != "") {
-      cout << "\033[1;31m" << rezultat << "\033[0m" << endl;
+    i = wheel.spin();
+    if (i == 0) {
+      cout << Kolor::red("Strata kolejki") << endl;
+    } else if (i == -1) {
+      cout << Kolor::red("Bankrut") << endl;
     } else {
-      cout << "\033[1;34m" << wheel[i] << "\033[0m" << endl;
-      kwota = wheel[i];
+      cout << Kolor::blue(to_string(i)) << endl;
+      kwota = i;
     }
 
-    if ((wheel[i] == 0) || (wheel[i] == -1)) {
-      if (wheel[i] == -1) {
+    if ((i == 0) || (i == -1)) {
+      if (i == -1) {
         players[currentPlayer].loseMoney();
       }
       currentPlayer = (currentPlayer + 1) % 3;
@@ -145,8 +141,8 @@ void Game::play() {
       cout << "OK";
       players[currentPlayer].addMoney(kwota * zgadl);
       cout << endl
-           << players[currentPlayer].getName() << "\033[1;32m "
-           << players[currentPlayer].getMoney() << "\033[0m";
+           << players[currentPlayer].getName() << Kolor::green(" ")
+           << players[currentPlayer].getMoney();
     } else {
       cout << "Zle!";
       currentPlayer = (currentPlayer + 1) % 3;
@@ -172,10 +168,10 @@ void Game::textPlayers() {
   cout << "\n";
   for (i = 0; i < 3; i++) {
     if (i == currentPlayer) {
-      cout << "\033[1;34m";
+      cout << Kolor::blue("");
     }
     cout << players[i].getName() << "\t" << players[i].getMoney() << "\n";
-    cout << "\033[0m";
+    cout << Kolor::red("");
   }
   cout << "\n";
 }
@@ -195,7 +191,7 @@ char Game::readLetter() {
     cout << endl << "Type a single letter and press <enter>: ";
     cin >> letter;
   }
-  for (auto &c : letter) 
+  for (auto &c : letter)
     c = toupper(c);
   return letter[0];
 }
@@ -208,25 +204,4 @@ char Game::readChoice() {
     cin >> choice;
   }
   return choice;
-}
-
-void Game::loadWords() {
-  ifstream inFile;
-  inFile.open("dane.txt");
-  setlocale(LC_CTYPE, "Polish");
-  while (!inFile.eof()) {
-    string s;
-    getline(inFile, s);
-    words.push_back(s);
-  }
-  inFile.close();
-}
-
-string Game::getRandomWord() {
-  srand(time(NULL));
-  if (words.size() > 0) {
-    int index = rand() % words.size();
-    return has = words[index];
-  }
-  return "";
 }
