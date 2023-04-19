@@ -195,7 +195,7 @@ char Game::readLetter() {
     cout << endl << "Type a single letter and press <enter>: ";
     cin >> letter;
   }
-  for (auto &c : letter) // & запамітовує зміни в циклі & - посилання
+  for (auto &c : letter) 
     c = toupper(c);
   return letter[0];
 }
