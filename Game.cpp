@@ -4,7 +4,7 @@
 #include "Wheel.h"
 #include <cassert>
 #include <cctype>
-#include <cmath>
+#include <cmath>   
 #include <cstring>
 #include <ctime>
 #include <fstream>
@@ -12,6 +12,29 @@
 #include <locale>
 
 using namespace std;
+
+ostream& operator<<(ostream& os, const Player& player) {
+    os << player.getName() << "\t" << player.getMoney();
+    return os;
+}
+
+Player& Player::operator+=(int value) {
+    money += value;
+    return *this;
+}
+
+Player& Player::operator-=(int value) {
+    money -= value;
+    return *this;
+}
+
+bool operator== (const Player& player1, const Player& player2){
+  return player1.getMoney() == player2.getMoney() && player1.getName() == player2.getName();
+}
+
+bool Player::operator<(const Player &other) const {
+  return money < other.money;
+}
 
 Game::Game() : currentPlayer(0) {
   players.resize(3);
@@ -85,7 +108,7 @@ void Game::play() {
         cout << endl
              << " !!!!!!!!!! =======   WYGRANA ========== !!!!!!!!!!!!!"
              << endl;
-        players[currentPlayer].addMoney(players[currentPlayer].getMoney());
+        players[currentPlayer] += players[currentPlayer].getMoney();
         break;
       } else {
         currentPlayer = (currentPlayer + 1) % 3;
@@ -110,7 +133,7 @@ void Game::play() {
 
     if ((i == 0) || (i == -1)) {
       if (i == -1) {
-        players[currentPlayer].loseMoney();
+        players[currentPlayer] -= players[currentPlayer].getMoney();
       }
       currentPlayer = (currentPlayer + 1) % 3;
       suma = 1;
@@ -170,7 +193,7 @@ void Game::textPlayers() {
     if (i == currentPlayer) {
       cout << Kolor::blue("");
     }
-    cout << players[i].getName() << "\t" << players[i].getMoney() << "\n";
+    cout << players[i] << '\n';
     cout << Kolor::red("");
   }
   cout << "\n";
